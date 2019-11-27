@@ -3,6 +3,7 @@ package InterfaceGrafica;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -16,10 +17,14 @@ import javax.swing.JMenu;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.util.Random;
 
 import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JRadioButton;
 
 public class InterfaceJogo {
 
@@ -28,8 +33,8 @@ public class InterfaceJogo {
 	private final Action action_1 = new SwingAction_1();
 	private final Action action_2 = new SwingAction_2();
 	private AtorJogador atorJogador;
-	public JButton[][] botoes;
-	public JPanel p1;
+	public JButton[][] botoesTabuleiro;
+	public JButton[] botoesMenu;
 	/**
 	 * Launch the application.
 	 */
@@ -58,7 +63,6 @@ public class InterfaceJogo {
 	 */
 	private void initialize() {
 		atorJogador = new AtorJogador();
-		
 		frame = new JFrame();
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 588, 500);
@@ -89,35 +93,68 @@ public class InterfaceJogo {
 		frame.getContentPane().add(panel);
 		panel.setLayout(new GridLayout(8,8));
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.RED);
-		panel_1.setBounds(490, 42, 84, 84);
-		frame.getContentPane().add(panel_1);
+		JButton btnQuadrado = new JButton();
+		btnQuadrado.setBounds(490, 44, 84, 84);
+		frame.getContentPane().add(btnQuadrado);
+		//btnQuadrado.setIcon(new javax.swing.ImageIcon(this.getClass().getResource("/res/imgs/quadrado.jpg")));
+		ImageIcon print1 = new ImageIcon(getClass().getClassLoader().getResource("res/imgs/quadrado.jpg"));
+		Image image1 = print1.getImage();
+		Image img1 = image1.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon quadrado = new ImageIcon(img1);
+        //Image img1 = print1.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        //ImageIcon quadrado = new ImageIcon(img1);
+		btnQuadrado.setIcon(quadrado);
 		
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(Color.BLUE);
-		panel_2.setBounds(490, 153, 84, 84);
-		frame.getContentPane().add(panel_2);
+
+		JButton btnL = new JButton();
+		btnL.setBounds(490, 155, 84, 84);
+		frame.getContentPane().add(btnL);
+		ImageIcon print2 = new ImageIcon(getClass().getClassLoader().getResource("res/imgs/l.jpg"));
+		Image image2 = print2.getImage();
+		Image img2 = image2.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon l = new ImageIcon(img2);
+       // Image img2 = print2.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        //ImageIcon l = new ImageIcon(img2);
+		btnL.setIcon(l);
 		
-		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.ORANGE);
-		panel_4.setBounds(490, 266, 84, 84);
-		frame.getContentPane().add(panel_4);
 		
-		JPanel panel_5 = new JPanel();
-		panel_5.setBackground(Color.MAGENTA);
-		panel_5.setBounds(490, 376, 84, 84);
-		frame.getContentPane().add(panel_5);
+		JButton btnLinha = new JButton();
+		btnLinha.setBounds(490, 265, 84, 84);
+		frame.getContentPane().add(btnLinha);
+		ImageIcon print3 = new ImageIcon(getClass().getClassLoader().getResource("res/imgs/linha.jpg"));
+		Image image3 = print3.getImage();
+		Image img3 = image3.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon linha = new ImageIcon(img3);
+		btnLinha.setIcon(linha);
 		
-		botoes = new JButton[8][8];
-		Movimentacao h = new Movimentacao(botoes);
+		JButton btnT = new JButton();
+		btnT.setBounds(490, 376, 84, 84);
+		frame.getContentPane().add(btnT);
+		ImageIcon print4 = new ImageIcon(getClass().getClassLoader().getResource("res/imgs/t.jpg"));
+		Image image4 = print4.getImage();
+		Image img4 = image4.getScaledInstance(90, 90, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon t = new ImageIcon(img4);
+		btnT.setIcon(t);
+		
+		botoesMenu = new JButton[4];
+		botoesMenu[0] = btnQuadrado;
+		botoesMenu[1] = btnL;
+		botoesMenu[2] = btnLinha;
+		botoesMenu[3] = btnT;
+		
+ 
+		botoesTabuleiro = new JButton[8][8];
+		Movimentacao h = new Movimentacao(botoesTabuleiro,botoesMenu);
+		for(int i = 0;i<=3;i++) {
+			botoesMenu[i].addMouseListener(h);
+		}
 	    for (int i = 0; i < 8; i++) {
 	    	for (int j = 0; j < 8; j++) {
 	            	
-	    		botoes[i][j] = new JButton();
-	    		botoes[i][j].setBackground(Color.WHITE);
-	    		panel.add(botoes[i][j]);
-	    		botoes[i][j].addActionListener(h);
+	    		botoesTabuleiro[i][j] = new JButton();
+	    		botoesTabuleiro[i][j].setBackground(Color.WHITE);
+	    		panel.add(botoesTabuleiro[i][j]);
+	    		botoesTabuleiro[i][j].addMouseListener(h);
 	    	}
 	    }
 		
@@ -135,8 +172,7 @@ public class InterfaceJogo {
 		}
 		public void actionPerformed(ActionEvent e) {
 			// Necessário definir endereço do servidor e nome do jogador
-			String mensagem = atorJogador.conectar("localhost", "nomeJogador?");
-			JOptionPane.showMessageDialog(null, mensagem);
+			atorJogador.conectar();
 		}
 	}
 	private class SwingAction_1 extends AbstractAction {
@@ -166,5 +202,19 @@ public class InterfaceJogo {
 			String mensagem = atorJogador.iniciarPartida();
 			JOptionPane.showMessageDialog(null, mensagem);
 		}
+	}
+	public void notificar(String notificacao) {
+		JOptionPane.showMessageDialog(null, notificacao);
+	}
+	
+	public String obterNomeJogador() {
+		String nome = JOptionPane.showInputDialog("Qual o seu nome?");
+		return nome;
+	}
+	
+	public String obterEnderecoServidor() {
+		String idServidor = ("localhost");
+		idServidor = JOptionPane.showInputDialog(null, "Insira o endereço do servidor", idServidor);
+		return idServidor;
 	}
 }

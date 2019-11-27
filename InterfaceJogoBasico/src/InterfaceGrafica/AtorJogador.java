@@ -1,28 +1,36 @@
 package InterfaceGrafica;
 
+import javax.swing.JOptionPane;
+
 import DominioDoProblema.ElementoDominioProblema;
+import DominioDoProblema.Lance;
+import DominioDoProblema.Movimentacao;
 import Rede.AtorNetgames;
 
 public class AtorJogador {
 	
-	protected AtorNetgames ngServer;
+	public AtorNetgames ngServer;
 	protected ElementoDominioProblema domProblema;
+	protected InterfaceJogo gui;
+	protected Movimentacao movimentacao;
 
 	public AtorJogador() {
 		ngServer = new AtorNetgames();
 		domProblema = new ElementoDominioProblema();
 	}
 
-	public String conectar(String string, String string2) {
-		String mensagem = "Condicao para conexao nao atendida (defina qual)";
-		boolean permitido = domProblema.permitidoConectar();
-		if (permitido) {
-			mensagem = ngServer.conectar(string, string2);
-			if (mensagem.equals("Sucesso: conectado a Netgames Server")) {
-				domProblema.definirConectado(true);
-			}
+	public void conectar() {
+		boolean conectado = ngServer.informarConectado();
+		if(!conectado) {
+			String jogador =JOptionPane.showInputDialog("Qual o seu nome?");
+			String idServidor = ("localhost");
+			idServidor = JOptionPane.showInputDialog(null, "Insira o endereço do servidor", idServidor);
+			String notificacao = ngServer.conectar(idServidor, jogador);
+			//.registrarJogadorLocal(jogador);
+			JOptionPane.showMessageDialog(null, notificacao);
+		} else {
+			JOptionPane.showMessageDialog(null, "Voce ja esta conectado!");
 		}
-		return mensagem;
 	}
 	
 	public String desconectar() {
@@ -46,4 +54,11 @@ public class AtorJogador {
 		return mensagem;
 	}
 
+	public void receberJogada(Lance lance) {
+		 movimentacao.receberJogada(lance);
+	}
+	
+	public void enviarJogada(Lance lance) {
+		ngServer.enviarJogada(lance);
+	}
 }

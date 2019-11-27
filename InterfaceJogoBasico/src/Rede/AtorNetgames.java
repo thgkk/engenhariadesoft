@@ -2,17 +2,22 @@ package Rede;
 
 import javax.swing.JOptionPane;
 
+import DominioDoProblema.Lance;
+import InterfaceGrafica.AtorJogador;
 import br.ufsc.inf.leobr.cliente.Jogada;
 import br.ufsc.inf.leobr.cliente.OuvidorProxy;
 import br.ufsc.inf.leobr.cliente.Proxy;
 import br.ufsc.inf.leobr.cliente.exception.ArquivoMultiplayerException;
 import br.ufsc.inf.leobr.cliente.exception.JahConectadoException;
 import br.ufsc.inf.leobr.cliente.exception.NaoConectadoException;
+import br.ufsc.inf.leobr.cliente.exception.NaoJogandoException;
 import br.ufsc.inf.leobr.cliente.exception.NaoPossivelConectarException;
 
 public class AtorNetgames implements OuvidorProxy {
 	
 	private static final long serialVersionUID = 1L;
+	protected AtorJogador atorJogador;
+	protected boolean conectado = false;
 	protected Proxy proxy;
 	
 	public AtorNetgames() {
@@ -74,18 +79,29 @@ public class AtorNetgames implements OuvidorProxy {
 		// TODO Auto-generated method stub
 		
 	}
-
+	public void enviarJogada(Lance lance) {
+		try {
+			proxy.enviaJogada(lance);
+		} catch (NaoJogandoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
 	@Override
 	public void receberMensagem(String msg) {
 		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void receberJogada(Jogada jogada) {
 		// TODO Auto-generated method stub
+		atorJogador.receberJogada((Lance) jogada);
 		
 	}
-
+	public boolean informarConectado() {
+		return conectado;
+	}
 	@Override
 	public void tratarConexaoPerdida() {
 		// TODO Auto-generated method stub
