@@ -13,10 +13,35 @@ public class AtorJogador {
 	protected ElementoDominioProblema domProblema;
 	protected InterfaceJogo gui;
 	protected Movimentacao movimentacao;
+	
+	private static AtorJogador instancia;
 
+	
+	public static synchronized AtorJogador getInstance () {
+		return instancia;
+	}
+	
+	public static synchronized AtorJogador getInstance (InterfaceJogo InterfaceJogo) {
+		if (instancia == null) {
+			instancia = new AtorJogador(InterfaceJogo);
+		}
+		return instancia;
+	}
+	
+	public AtorJogador(InterfaceJogo InterfaceJogo) {
+		super();
+		iniciar(InterfaceJogo);
+	}
 	public AtorJogador() {
 		ngServer = new AtorNetgames();
 		domProblema = new ElementoDominioProblema();
+	}
+	private void iniciar(InterfaceJogo InterfaceJogo) {
+		gui = InterfaceJogo;
+		ngServer = new AtorNetgames();
+		domProblema = new ElementoDominioProblema();
+		movimentacao = new Movimentacao();		
+		ngServer.definirInterfaceJogador(this);
 	}
 
 	public void conectar() {
@@ -26,36 +51,52 @@ public class AtorJogador {
 			String idServidor = ("localhost");
 			idServidor = JOptionPane.showInputDialog(null, "Insira o endereço do servidor", idServidor);
 			String notificacao = ngServer.conectar(idServidor, jogador);
-			//.registrarJogadorLocal(jogador);
+			movimentacao.registrarJogadorLocal(jogador);
 			JOptionPane.showMessageDialog(null, notificacao);
 		} else {
 			JOptionPane.showMessageDialog(null, "Voce ja esta conectado!");
 		}
 	}
 	
-	public String desconectar() {
-		String mensagem = "Condicao para desconexao nao atendida (defina qual)";
-		boolean permitido = domProblema.permitidoDesconectar();
-		if (permitido) {
-			mensagem = ngServer.desconectar();
-			if (mensagem.equals("Sucesso: desconectado de Netgames Server")) {
-				domProblema.definirConectado(false);
-			}
+	public boolean desconectar() {
+		boolean conectado = ngServer.informarConectado();
+		boolean atualizarInterface = false;
+		if(conectado) {
+			atualizarInterface = movimentacao.encerrarPartida();
+			if (atualizarInterface) ngServer.encerrarPartida();
+			ngServer.desconectar();
+			gui.notificar("Voce esta desconectado");
+			gui.minimizaCampo();
+		} else {
+			gui.notificar("Voce nao esta conectado");
 		}
-		return mensagem;
+		return atualizarInterface;
 	}
 	
-	public String iniciarPartida() {
-		String mensagem = "Condicao para iniciar partida nao atendida (defina qual)";
-		boolean permitido = domProblema.permitidoIniciarPartida();
-		if (permitido) {
-			mensagem = ngServer.iniciarPartida();
-		}
-		return mensagem;
-	}
+	public boolean iniciarPartida() {
+		boolean conectado = ngServer.informarConectado();
+		System.out.println(conectado);
+		boolean atualizarInterface = false;
+		if(conectado) {	
+			atualizarInterface = movimentacao.encerrarPartida();
+			System.out.println("atualizarInterface(InterfaceJogador) : " + atualizarInterface); //////////////////////////teste
 
+			if (atualizarInterface) ngServer.encerrarPartida();
+			ngServer.iniciarPartida();
+		} else {
+			gui.notificar("Voce nao esta conectado");
+		}
+		return atualizarInterface;
+	}
+	public void iniciarNovaPartida(Integer ordem, String adversario) {
+		movimentacao.iniciarNovaPartida(ordem, adversario);
+
+	}
 	public void receberJogada(Lance lance) {
-		 movimentacao.receberJogada(lance);
+		 gui.receberJogada(lance);
+	}
+	public void encerrarPartida() {
+		movimentacao.encerrarPartida();
 	}
 	
 	public void enviarJogada(Lance lance) {

@@ -9,7 +9,7 @@ import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-
+import InterfaceGrafica.InterfaceJogo;
 import InterfaceGrafica.AtorJogador;
 import Rede.AtorNetgames;
 
@@ -19,13 +19,23 @@ public class Movimentacao implements ActionListener, MouseListener {
 	public boolean vezQuadrado,vezL,vezLinha,vezT;
 	public AtorJogador atorJogador;
 	public boolean pecaColocada=false;
-	public AtorNetgames ngServer;
-	
+	protected Jogador jogadorLocal;
+	protected Jogador jogadorRemoto;
+	protected boolean partidaEmAndamento = false;
+	protected boolean jogadaEmAndamento = false;
+	public MouseEvent evento;
 	
 	public Movimentacao(JButton[][] botoesTabuleiro,JButton[] botoesMenu) {
+		super();
 		this.botoesTabuleiro = botoesTabuleiro;
 		this.botoesMenu = botoesMenu;
+		atorJogador = new AtorJogador();
+		
+		iniciar();
 	}
+	public Movimentacao() {}
+	
+
 	
 	
 	public boolean podeColocarPeca(JButton botao, int tipo) {
@@ -99,8 +109,78 @@ public class Movimentacao implements ActionListener, MouseListener {
 		return true;
 	}
 	
+	public void colocarPeca(int i,int j, MouseEvent e) {
+		
+		if (e.getSource() == botoesTabuleiro[i][j] && vezQuadrado && podeColocarPeca(botoesTabuleiro[i][j],0)) {
+        	
+            botoesTabuleiro[i][j].setBackground(Color.RED);
+            botoesTabuleiro[i+1][j].setBackground(Color.RED);
+            botoesTabuleiro[i][j+1].setBackground(Color.RED);
+            botoesTabuleiro[i+1][j+1].setBackground(Color.RED);
+            Lance lance = new Lance();
+            lance.matrizPecas[i][j] = 1;
+            lance.matrizPecas[i+1][j] = 1;
+            lance.matrizPecas[i][j+1] = 1;
+            lance.matrizPecas[i+1][j+1] = 1;
+            lance.cor = 1;
+           	atorJogador.enviarJogada(lance);
+           	
+            
+            vezQuadrado=false;
+            jogoAcabou();
+        	
+        }
+        else if (e.getSource() == botoesTabuleiro[i][j] && vezL && podeColocarPeca(botoesTabuleiro[i][j],1)) { 
+        	
+        	botoesTabuleiro[i][j].setBackground(Color.BLUE);
+        	botoesTabuleiro[i+1][j].setBackground(Color.BLUE);
+        	botoesTabuleiro[i-1][j].setBackground(Color.BLUE);
+        	botoesTabuleiro[i+1][j+1].setBackground(Color.BLUE);
+        	Lance lance = new Lance();
+            lance.matrizPecas[i][j] = 1;
+            lance.matrizPecas[i+1][j] = 1;
+            lance.matrizPecas[i-1][j] = 1;
+            lance.matrizPecas[i+1][j+1] = 1;
+            lance.cor = 2;
+           	atorJogador.enviarJogada(lance);
+        	vezL=false;
+        	jogoAcabou();
+        }
+        else if (e.getSource() == botoesTabuleiro[i][j] && vezLinha && podeColocarPeca(botoesTabuleiro[i][j],2)) { 
+        	
+        	botoesTabuleiro[i][j].setBackground(Color.ORANGE);
+        	botoesTabuleiro[i+1][j].setBackground(Color.ORANGE);
+        	botoesTabuleiro[i+2][j].setBackground(Color.ORANGE);
+        	botoesTabuleiro[i+3][j].setBackground(Color.ORANGE);
+        	Lance lance = new Lance();
+            lance.matrizPecas[i][j] = 1;
+            lance.matrizPecas[i+1][j] = 1;
+            lance.matrizPecas[i+2][j] = 1;
+            lance.matrizPecas[i+3][j+1] = 1;
+            lance.cor = 3;
+        	vezLinha=false;
+        	 jogoAcabou();
+        }
+        else if (e.getSource() == botoesTabuleiro[i][j] && vezT && podeColocarPeca(botoesTabuleiro[i][j],3)) { 
+        	
+        	botoesTabuleiro[i][j].setBackground(Color.MAGENTA);
+        	botoesTabuleiro[i-1][j].setBackground(Color.MAGENTA);
+        	botoesTabuleiro[i][j+1].setBackground(Color.MAGENTA);
+        	botoesTabuleiro[i][j-1].setBackground(Color.MAGENTA);
+        	Lance lance = new Lance();
+            lance.matrizPecas[i][j] = 1;
+            lance.matrizPecas[i-1][j] = 1;
+            lance.matrizPecas[i][j+1] = 1;
+            lance.matrizPecas[i][j-1] = 1;
+            lance.cor = 4;
+        	vezT=false;
+        	 jogoAcabou();
+        }
+	}
+	
 	public void mouseClicked(MouseEvent e) {
-		if(e.getSource() == botoesMenu[0]) {
+		evento = e;
+     	if(e.getSource() == botoesMenu[0]) {
 			vezQuadrado = true;
 			vezL=false;
 			vezT = false;
@@ -130,57 +210,11 @@ public class Movimentacao implements ActionListener, MouseListener {
 		}
 		for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-            	
-                if (e.getSource() == botoesTabuleiro[i][j] && vezQuadrado && podeColocarPeca(botoesTabuleiro[i][j],0)) {
-                	
-	                botoesTabuleiro[i][j].setBackground(Color.RED);
-	                botoesTabuleiro[i+1][j].setBackground(Color.RED);
-	                botoesTabuleiro[i][j+1].setBackground(Color.RED);
-	                botoesTabuleiro[i+1][j+1].setBackground(Color.RED);
-	                Lance lance = new Lance();
-	                lance.matrizPecas[i][j] = 1;
-	                lance.matrizPecas[i+1][j] = 1;
-	                lance.matrizPecas[i][j+1] = 1;
-	                lance.matrizPecas[i+1][j+1] = 1;
-	                lance.cor = "vermelho";
-	               	ngServer.enviarJogada(lance);
-	                
-	                vezQuadrado=false;
-	                jogoAcabou();
-                	
-                }
-                else if (e.getSource() == botoesTabuleiro[i][j] && vezL && podeColocarPeca(botoesTabuleiro[i][j],1)) { 
-                	
-                	botoesTabuleiro[i][j].setBackground(Color.BLUE);
-                	botoesTabuleiro[i+1][j].setBackground(Color.BLUE);
-                	botoesTabuleiro[i-1][j].setBackground(Color.BLUE);
-                	botoesTabuleiro[i+1][j+1].setBackground(Color.BLUE);
-                	vezL=false;
-                	jogoAcabou();
-                }
-                else if (e.getSource() == botoesTabuleiro[i][j] && vezLinha && podeColocarPeca(botoesTabuleiro[i][j],2)) { 
-                	
-                	botoesTabuleiro[i][j].setBackground(Color.ORANGE);
-                	botoesTabuleiro[i+1][j].setBackground(Color.ORANGE);
-                	botoesTabuleiro[i+2][j].setBackground(Color.ORANGE);
-                	botoesTabuleiro[i+3][j].setBackground(Color.ORANGE);
-                	vezLinha=false;
-                	 jogoAcabou();
-                }
-                else if (e.getSource() == botoesTabuleiro[i][j] && vezT && podeColocarPeca(botoesTabuleiro[i][j],3)) { 
-                	
-                	botoesTabuleiro[i][j].setBackground(Color.MAGENTA);
-                	botoesTabuleiro[i-1][j].setBackground(Color.MAGENTA);
-                	botoesTabuleiro[i][j+1].setBackground(Color.MAGENTA);
-                	botoesTabuleiro[i][j-1].setBackground(Color.MAGENTA);
-                	vezT=false;
-                	 jogoAcabou();
-                }
-                
+            	colocarPeca(i,j,evento);
             }
-            pecaColocada=true;
+           
 		}
-		
+		 pecaColocada=true;
 			
 	}
 	
@@ -234,18 +268,38 @@ public class Movimentacao implements ActionListener, MouseListener {
 		// TODO Auto-generated method stub
 		
 	}
-
-	public void receberJogada(Lance lance) {
-		// TODO Auto-generated method stub
-		for(int i=0;i<8;i++) {
-			for(int j=0;j<8;j++) {
-				if(lance.matrizPecas[i][j]==1) {
-					if(lance.cor=="vermelho") {
-						this.botoesTabuleiro[i][j].setBackground(Color.RED);
-					}
-				}
-			}
-		}
-		
+	public void registrarJogadorLocal(String jogador) {
+		jogadorLocal = new Jogador();
+		jogadorLocal.definirNome(jogador);
+		jogadorLocal.iniciar();
 	}
+	private void iniciar() {
+		partidaEmAndamento = false;
+		jogadaEmAndamento = false;
+	}
+	
+	
+	public void iniciarNovaPartida(Integer ordem, String adversario) {
+		jogadorLocal.iniciar();
+		jogadorRemoto = new Jogador();
+		jogadorRemoto.definirNome(adversario);
+		if (ordem.equals(1)) jogadorLocal.definirComoPrimeiro();
+			else jogadorRemoto.definirComoPrimeiro();
+		partidaEmAndamento = true;
+	}
+	
+	public void definirPartidaEmAndamento(boolean valor) {	
+		partidaEmAndamento = valor;
+	}
+	public boolean encerrarPartida() {	
+		if (partidaEmAndamento) {
+			this.encerrarPartidaLocalmente();
+			return true;
+		} else return false;
+	}
+	 public void encerrarPartidaLocalmente() {
+			jogadorLocal.iniciar();
+			jogadorRemoto = new Jogador();
+			jogadorRemoto.iniciar();
+		}
 }

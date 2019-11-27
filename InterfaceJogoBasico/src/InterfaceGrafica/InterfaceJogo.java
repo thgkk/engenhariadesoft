@@ -11,6 +11,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import DominioDoProblema.Lance;
 import DominioDoProblema.Movimentacao;
 
 import javax.swing.JMenu;
@@ -57,15 +58,18 @@ public class InterfaceJogo {
 	public InterfaceJogo() {
 		initialize();
 	}
+	public void minimizaCampo() {
+    	frame.setVisible(false);
 
+    }
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		atorJogador = new AtorJogador();
+		atorJogador = AtorJogador.getInstance(this);
 		frame = new JFrame();
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 588, 500);
+		frame.setBounds(100, 100, 694, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -89,7 +93,7 @@ public class InterfaceJogo {
 		mnNewMenu.add(mntmIniciarPartida);
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 42, 474, 418);
+		panel.setBounds(0, 42, 474, 418);
 		frame.getContentPane().add(panel);
 		panel.setLayout(new GridLayout(8,8));
 		
@@ -142,12 +146,10 @@ public class InterfaceJogo {
 		botoesMenu[2] = btnLinha;
 		botoesMenu[3] = btnT;
 		
+		
  
 		botoesTabuleiro = new JButton[8][8];
 		Movimentacao h = new Movimentacao(botoesTabuleiro,botoesMenu);
-		for(int i = 0;i<=3;i++) {
-			botoesMenu[i].addMouseListener(h);
-		}
 	    for (int i = 0; i < 8; i++) {
 	    	for (int j = 0; j < 8; j++) {
 	            	
@@ -157,6 +159,10 @@ public class InterfaceJogo {
 	    		botoesTabuleiro[i][j].addMouseListener(h);
 	    	}
 	    }
+	    
+		for(int i = 0;i<=3;i++) {
+			botoesMenu[i].addMouseListener(h);
+		}
 		
 	   
 	}
@@ -185,8 +191,7 @@ public class InterfaceJogo {
 			putValue(SHORT_DESCRIPTION, "desconectar de Netgames Server");
 		}
 		public void actionPerformed(ActionEvent e) {
-			String mensagem = atorJogador.desconectar();
-			JOptionPane.showMessageDialog(null, mensagem);
+			atorJogador.desconectar();
 		}
 	}
 	private class SwingAction_2 extends AbstractAction {
@@ -199,9 +204,22 @@ public class InterfaceJogo {
 			putValue(SHORT_DESCRIPTION, "iniciar partida do seu jogo");
 		}
 		public void actionPerformed(ActionEvent e) {
-			String mensagem = atorJogador.iniciarPartida();
-			JOptionPane.showMessageDialog(null, mensagem);
+			atorJogador.iniciarPartida();
+			
 		}
+	}
+	public void receberJogada(Lance lance) {
+		// TODO Auto-generated method stub
+		for(int i=0;i<8;i++) {
+			for(int j=0;j<8;j++) {
+				if(lance.matrizPecas[i][j]==1) {
+					if(lance.cor==1) {
+						botoesTabuleiro[i][j].setBackground(Color.RED);
+					}
+				}
+			}
+		}
+		
 	}
 	public void notificar(String notificacao) {
 		JOptionPane.showMessageDialog(null, notificacao);
